@@ -16,8 +16,19 @@ git clone https://github.com/sjcr23/BK-Survey-Automator.git
 pip install pynput
 ```
 
+<<<<<<< HEAD
 3. Run the script and instantly click on your navigator window to watch it automatically complete the Burger King survey. (You got 2 secs to do it, if you want to modify this initial wait time just change `INTIAL_WAIT` value)
 
 ## Disclaimer
 
 1.  Your internet connectioin its important, if your wifi is too slow, please increase `REPSONSE` time.
+=======
+3. Open a navigator on the [survey page.](https://www.evaluabk.com/)
+
+4. Run the script and instantly click on your navigator window to watch it automatically complete the Burger King survey. (You got 2 secs to do it, if you want to modify this initial wait time just change `INTIAL_WAIT` value)
+
+## Disclaimer
+
+1.  Your internet connectioin its important, if your wifi is too slow please increase `REPSONSE` time.
+2.  This survey gives a postive review.
+>>>>>>> 21b8002f4e4fc4575b7c245024f8728f90910858
