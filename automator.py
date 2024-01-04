@@ -1,104 +1,137 @@
-from pynput.keyboard import Key, Controller
-import time
+from webbrowser import open
+from pynput.keyboard import Controller
 
-keyboard = Controller()
+import time
+import answers
+
+
+class Automator:
+    '''
+    The Automator class is designed to automate the process of completing a survey. It utilizes the Controller class
+    from the pynput library to simulate keyboard input, enabling navigation and data entry. The class provides methods
+    for pressing and releasing keys, setting Burger King (BK) numbers, entering text answers, executing sequences of
+    commands, logging responses, and completing the entire survey.
+
+    Attributes:
+        wait_time (float): The time interval between key presses and releases.
+        page_counter (int): Counter for keeping track of completed pages.
+        keyboard (Controller): Instance of the Controller class for simulating keyboard input.
+
+    Methods:
+        press_and_release(keys, times=1): Simulates pressing and releasing a sequence of keys a specified number of times.
+        set_BK_number(): Enters the Burger King number and advances to the next input field.
+        answer_text(): Enters a text answer and advances to the next input field.
+        execute(commands, times): Executes a series of key sequences a specified number of times.
+        log_response(): Logs the completion of a survey page, updating the page counter.
+        complete_survey(): Initiates the survey completion process, navigating through pages and entering data.
+
+    Usage Example:
+        automator = Automator()
+        automator.complete_survey()
+    '''
+    def __init__(self, time=0.23):
+        self.wait_time = time
+        self.page_counter = 1
+        self.keyboard = Controller()
+
+
+    def press_and_release(self, keys, times=1):
+        '''
+        Simulates pressing and releasing a sequence of keys a specified number of times.
+
+        Parameters:
+            keys (list): List of keys to be pressed and released.
+            times (int): Number of times the key sequence should be executed. Default is 1.
+        '''
+        for _ in range(times):
+            for key in keys:
+                time.sleep(self.wait_time)
+                self.keyboard.press(key)
+                self.keyboard.release(key)
+
+
+    def set_BK_number(self):
+        '''
+        Enters the Burger King number and advances to the next input field.
+        '''
+        self.press_and_release(answers.TAB, 2)
+        self.keyboard.type(answers.restaurant_number)
+        self.press_and_release(answers.NEXT)
+
+
+    def answer_text(self):
+        '''
+        Enters a text answer and advances to the next input field.
+        '''
+        self.press_and_release(answers.TAB)
+        self.keyboard.type(answers.text_answer)
+        self.press_and_release(answers.TAB)
+        self.press_and_release(answers.NEXT)
+
+
+    def execute(self, commands, times):
+        '''
+        Executes a series of key sequences a specified number of times.
+
+        Parameters:
+            commands (list): List of key sequences to be executed.
+            times (list): List specifying the number of times each corresponding command should be executed.
+        '''
+        if len(commands) != len(times):
+            return "Error"
+
+        for i in range(len(commands)):
+            self.press_and_release(commands[i], times[i])
+
+
+    def log_response(self):
+        '''
+        Logs the completion of a survey page, updating the page counter.
+        '''
+        print("Page #" + str(self.page_counter) + " completed.")
+        self.page_counter += 1
+        time.sleep(RESPONSE_TIME)
+
+
+    def complete_survey(self):
+        '''
+        Initiates the survey completion process, navigating through pages and entering data.
+        '''
+        open(SURVEY_URL)
+        time.sleep(INITIAL_WAIT)
+        pages = answers.actions
+
+        for page in pages:
+            is_text = len(pages[page]) == 1
+
+            if not is_text:
+                keys = pages[page][0]
+                repeats = pages[page][1]
+                self.execute(keys, repeats)
+                self.log_response()
+
+            else:
+                match page:
+                    case "page_01":
+                        self.set_BK_number()
+                        self.log_response()
+
+                    case _:
+                        self.answer_text()
+                        self.log_response()
+
+        print("Survey completed.")
+
 
 # Waiting times
-INITIAL_WAIT, INSTANT, FAST, RESPONSE = 2, 0, 0.1, 1.4
+FAST = 0.05
+INSTANTLY = 0
+INITIAL_WAIT = 7
+RESPONSE_TIME = 1.6
 
-# Key sequences
-NEXT = [Key.tab, Key.enter]
-TAB = [Key.tab]
-OPT = [Key.tab, Key.space]
-DATE = [Key.tab, Key.right, Key.right]
-DOWN = [Key.down]
+# Survey
+SURVEY_URL = "https://www.evaluabk.com/"
 
-# Answers
-BK_NUMBER = "29626"
-TEXT_ASNWER = "Sí. ;)"
-NEXT_OPTION = [OPT, NEXT]
-SELECT_ONE = [OPT, TAB, NEXT]
-SAY_NO = [OPT, DOWN, TAB, NEXT]
-SET_DATE = [NEXT, DATE, NEXT]
-
-# Page counter
-CURRENT_PAGE = 1
-
-
-def press_and_release(keys, times=1):
-    for i in range(times):
-        for key in keys:
-            time.sleep(INSTANT)
-            keyboard.press(key)
-            keyboard.release(key)
-
-
-def set_BK_number(text):
-    press_and_release(TAB, 2)
-    keyboard.type(text)
-    press_and_release(NEXT, 1)
-
-
-def answerText(text):
-    press_and_release(TAB, 1)
-    keyboard.type(text)
-    press_and_release(TAB, 1)
-    press_and_release(NEXT, 1)
-
-
-def execute(commands, times):
-    assert len(commands) == len(times)
-    for i in range(len(commands)):
-        press_and_release(commands[i], times[i])
-
-
-def log_response():
-    global CURRENT_PAGE
-    print("Page #" + str(CURRENT_PAGE) + " completed.")
-    CURRENT_PAGE += 1
-    time.sleep(RESPONSE)
-
-
-answers = [
-    [BK_NUMBER],
-    [SET_DATE, [1, 3, 1]],
-    [NEXT_OPTION, [1, 1]],
-    [TEXT_ASNWER],
-    [NEXT_OPTION, [1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [NEXT_OPTION, [12, 1]],
-    [SELECT_ONE, [2, 1, 1]],
-    [SAY_NO, [1, 1, 1, 1]],
-    [SELECT_ONE, [1, 43, 1]],
-    [SELECT_ONE, [1, 12, 1]],
-    [SELECT_ONE, [1, 8, 1]],
-    [SELECT_ONE, [2, 1, 1]],
-    [NEXT_OPTION, [1, 1]],
-    [SELECT_ONE, [9, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [TEXT_ASNWER],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]],
-    [SELECT_ONE, [1, 1, 1]]
-]
-
-time.sleep(INITIAL_WAIT)
-
-for answer in answers:
-    if len(answer) > 1:
-        execute(answer[0], answer[1])
-        log_response()
-
-    else:
-        if answer[0] == BK_NUMBER:
-            set_BK_number(answer[0])
-            log_response()
-        else:
-            answerText(answer[0])
-            log_response()
-
-print("done. :)")
+# Automator
+bot = Automator(time= FAST)
+bot.complete_survey()
