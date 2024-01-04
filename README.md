@@ -21,7 +21,7 @@ pip install pynput
 ## Disclaimer
 
 1.  Your internet connectioin its important, if your wifi is too slow, please increase `REPSONSE` time.
-=======
+
 3. Open a navigator on the [survey page.](https://www.evaluabk.com/)
 
 4. Run the script and instantly click on your navigator window to watch it automatically complete the Burger King survey. (You got 2 secs to do it, if you want to modify this initial wait time just change `INTIAL_WAIT` value)
